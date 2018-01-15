@@ -51,7 +51,7 @@ def analyse(path, filter_fn, field_name, print_csv=False):
 
     if print_csv:
         print "CSV:"
-        print "date,%s" % tag
+        print "date,%s" % field_name
         for d in date_range(occurrences[0], occurrences[len(occurrences)-1]):
             if d in occurrences:
                 print str(d) + ",1"
