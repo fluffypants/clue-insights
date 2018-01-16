@@ -11,14 +11,24 @@ Optionally prints as csv for export
 """
 
 def load_data(path, filter_fn):
-    data = None
     with open(path) as f:
-        data = sorted(json.loads(f.read())['data'], key=lambda x: x['day'])
+        data_sorted = sorted(json.loads(f.read())['data'], key=lambda x: x['day'])
+
+    data = { x['day'][:10]: x for x in data_sorted }
     days = []
     day_of_cycle_dict = {}
     day_of_cycle = 0
+    start_date = parse(data_sorted[0]['day'])
+    end_date = parse(data_sorted[len(data_sorted)-1]['day'])
+    dates = [x.date().strftime('%Y-%m-%d') for x in date_range(start_date, end_date)]
 
-    for i in data:
+    for d in dates:
+        try:
+            i = data[d]
+        except:
+            if day_of_cycle != 0:
+                day_of_cycle += 1
+            continue
         if 'period' in i:
             if (day_of_cycle > 15 or day_of_cycle == 0) and i['period'] != 'spotting':
                 day_of_cycle = 1
@@ -43,6 +53,7 @@ def analyse(path, filter_fn, field_name, print_csv=False):
     if len(occurrences) == 0:
         print "No tags found. Are you sure '%s' is the correct tag?" % tag
         return
+
     deltas = []
     for d in xrange(len(occurrences)-1):
         delta = occurrences[d+1] - occurrences[d]
