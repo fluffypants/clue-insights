@@ -3,7 +3,7 @@ import datetime
 from dateutil.parser import parse
 import json
 import sys
-from util import average, std_dev, date_range
+from util import average, std_dev, date_range, weekday_from_int
 
 """
 A script for analysing a tag (the user defined custom ones) or a label (e.g. 'period')
@@ -21,6 +21,7 @@ def load_data(path, filter_fn):
     start_date = parse(data_sorted[0]['day'])
     end_date = parse(data_sorted[len(data_sorted)-1]['day'])
     dates = [x.date().strftime('%Y-%m-%d') for x in date_range(start_date, end_date)]
+    weekdays = { x: 0 for x in xrange(0, 7) }
 
     for d in dates:
         try:
@@ -34,6 +35,7 @@ def load_data(path, filter_fn):
                 day_of_cycle = 1
         if filter_fn(i):
             days.append(parse(i['day']))
+            weekdays[parse(i['day']).weekday()] += 1
             if day_of_cycle != 0:
                 if not day_of_cycle_dict.get(day_of_cycle):
                     day_of_cycle_dict[day_of_cycle] = 1
@@ -42,12 +44,17 @@ def load_data(path, filter_fn):
         if day_of_cycle != 0:
             day_of_cycle += 1
 
-    return { "days": days, "day_of_cycle": day_of_cycle_dict }
+    return {
+        "days": days,
+        "day_of_cycle": day_of_cycle_dict,
+        "weekdays": weekdays
+    }
 
 def analyse(path, filter_fn, field_name, print_csv=False):
     data = load_data(path, filter_fn)
     occurrences = data['days']
     day_of_cycle = data['day_of_cycle']
+    weekdays = data['weekdays']
     day_of_cycle_total = sum([day_of_cycle[x] for x in day_of_cycle])
 
     if len(occurrences) == 0:
@@ -79,6 +86,10 @@ def analyse(path, filter_fn, field_name, print_csv=False):
                 print ".\n."
         previous = k
         print ("Day %s:" % k).ljust(10), str(day_of_cycle[k]).ljust(4), round(day_of_cycle[k] / float(day_of_cycle_total), 2)
+    print "==============="
+    print "Weekday distribution"
+    for k in sorted(weekdays.keys()):
+        print weekday_from_int(k).ljust(5), weekdays[k]
     print "==============="
     print "Total amount of days with %s: " % field_name, len(occurrences)
     print "Average amount of days between %s: " % field_name, average(deltas)

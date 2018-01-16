@@ -16,3 +16,14 @@ def std_dev(data):
 def date_range(date1, date2):
     for n in xrange((date2 - date1).days + 1):
         yield date1 + datetime.timedelta(n)
+
+def weekday_from_int(n):
+    return {
+      0: "Mon",
+      1: "Tue",
+      2: "Wed",
+      3: "Thu",
+      4: "Fri",
+      5: "Sat",
+      6: "Sun"
+    }[n]
