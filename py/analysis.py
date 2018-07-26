@@ -68,7 +68,6 @@ def analyse(path, filter_fn, field_name, print_csv=False):
             deltas.append(delta.days)
 
     if print_csv:
-        print "CSV:"
         print "date,%s" % field_name
         for d in date_range(occurrences[0], occurrences[len(occurrences)-1]):
             if d in occurrences:

@@ -1,7 +1,7 @@
 import datetime
 
 def average(data):
-    return sum(data) / len(data)
+    return sum(data) / float(len(data))
 
 def variance(data):
     avg = average(data)
